@@ -1,56 +1,55 @@
-extern crate lin_alg;
 extern crate num_complex;
 extern crate rand;
 
 use num_complex::Complex32;
-use lin_alg::csvd::csvd;
-use lin_alg::find_pinv_from_svd;
 use rand::prelude::*;
 use std::time::SystemTime;
 
+mod matrixmult;
+
+use matrixmult::gemm;
+
 fn main() {
-    let n = 64;
     let m = 64;
     let num_iter = 1_000;
 
-    // create input matrix and initiaze with random numbers
-    let mut input_mat: Vec<Complex32> = Vec::with_capacity(m*n);
+    // create input matrix A and initialize with random numbers
+    let mut a: Vec<Complex32> = Vec::with_capacity(m*m);
     let mut rng = rand::thread_rng();
 
-    for _ in 0..m*n {
-        input_mat.push(Complex32{re: rng.gen(), im: rng.gen()})
-    }
-
-    //create inverse matrix with dimension nxm
-    let mut inverse_mat: Vec<Complex32> = Vec::with_capacity(n*m);
-    for _ in 0..n*m {
-        inverse_mat.push(Complex32{re: 0.0, im: 0.0});
-}
-    //create S vector with dimension n
-    let mut s: Vec<f32> = Vec::with_capacity(n);
-    for _ in 0..n {
-        s.push(0.0);
-    }
-
-    //create U matrix dimension mxm
-    let mut u: Vec<Complex32> = Vec::with_capacity(m*m);
     for _ in 0..m*m {
-        u.push(Complex32{re: 0.0, im: 0.0});
+        a.push(Complex32{re: rng.gen(), im: rng.gen()});
     }
 
-    //create v matrix with dimension nxn
-    let mut v: Vec<Complex32> = Vec::with_capacity(n*n);
-    for _ in 0..n*n {
-        v.push(Complex32{re: 0.0, im: 0.0});
+    // create input matrix B and initialize with random numbers
+    let mut b: Vec<Complex32> = Vec::with_capacity(m*m);
+    for i in 0..m*m {
+        b.push(Complex32{re: rng.gen(), im: rng.gen()});
     }
 
-    //now run pinv in a loop and note time
+    // create output matrix C and clear
+    let mut c: Vec<Complex32> = Vec::with_capacity(m*m);
+
+    for _ in 0..m*m {
+        c.push(Complex32{re: 0.0, im: 0.0})
+    }
+
+    // now run matrix mult in a loop and note time
     let start = SystemTime::now();
     for _ in 0..num_iter {
-        // csvd(&mut input_mat, m, n, n, m, 0, m, n, &mut s, &mut u, &mut v);
-        find_pinv_from_svd(&mut s, &u, &v, m, n, &mut inverse_mat);
+        let _ = gemm(&mut a, m, m, &mut b, m, m, &mut c);
     }
     let duration = start.elapsed();
 
     println!("time = {:?}", duration.unwrap());
+}
+
+fn print_matrix(mat: &Vec<Complex32>, rows: usize, cols: usize) {
+    for i in 0..rows {
+        for j in 0..cols{
+            print!("{} + {}i, ", mat[i*cols + j].re, mat[i*cols + j].im);
+        }
+        println!("");
+    }
+    println!("");
 }

@@ -1,12 +1,8 @@
 [package]
-name = "test_pinv"
+name = "comp513_project1"
 version = "0.1.0"
 authors = ["Ramla-I <ijazramla@gmail.com>"]
 edition = "2018"
-
-[dependencies.lin_alg]
-git = "https://github.com/Ramla-I/lin_alg.git"
-
 
 [dependencies.num-complex]
 version = "0.2"
