@@ -14,30 +14,14 @@ static MULT_DONE: AtomicUsize = AtomicUsize::new(0);
 
 fn main() {
 
-    /*** Part 1: Latency - how fast can you make matrix multiplication ***/
-    let num_iter = 1000;
-
     let start = SystemTime::now();
-    for _ in 0..num_iter {
+    loop {
         run_matrixmult();
     }
     let duration = start.elapsed();
 
     // note down average latency
     // latency = duration / num_iter
-
-
-
-    /*** Part 2: Throughput - how many matrix multiplications can you perform in parallel ***/
-
-    // Num of seconds to run the evaulation
-    let time = 30;
-
-    // we sleep for 30 seconds
-    sleep(Duration::new(30, 0));
-
-    // Note down values of measurement thread and total throughput
-    // throughput = MULT_DONE / time
 }
 
 fn print_matrix(mat: &Vec<Complex32>, rows: usize, cols: usize) {
@@ -74,7 +58,9 @@ fn generate_zeroed_matrix(size: usize) -> Vec<Complex32> {
 }
 
 fn run_matrixmult() {
+    //size of the matrix
     let m = 64;
+    
     let a = generate_random_matrix(m);
     let b = generate_random_matrix(m);
     let mut c = generate_zeroed_matrix(m);
