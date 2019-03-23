@@ -13,17 +13,22 @@ use matrixmult::gemm;
 static MULT_DONE: AtomicUsize = AtomicUsize::new(0);
 
 fn main() {
+    // add you code here
+}
 
+fn find_average_latency() -> u64 {
+    let num_iter: u64 = 1000;
     let start = SystemTime::now();
-    loop {
+    for _ in 0..num_iter {
         run_matrixmult();
     }
     let duration = start.elapsed();
-
-    // note down average latency
-    // latency = duration / num_iter
+    
+    // Return latency
+    // duration / num_iter
+    duration.as_secs() / num_iter
 }
-
+    
 fn print_matrix(mat: &Vec<Complex32>, rows: usize, cols: usize) {
     for i in 0..rows {
         for j in 0..cols{
@@ -67,5 +72,5 @@ fn run_matrixmult() {
 
     let _ = gemm(&a, m, m, &b, m, m, &mut c);
 
-    MULT_DONE.fetch_add(1, Ordering::Relaxed);
+//     MULT_DONE.fetch_add(1, Ordering::Relaxed);
 }
