@@ -80,6 +80,16 @@ fn check_matrix_equality(a: &Vec<Complex32>, b: &Vec<Complex32>, m: usize, n:usi
     equal
 }
 
+fn run_matrixmult() {
+    let m = MATRIX_SIZE;
+    let a = generate_random_matrix(m);
+    let b = generate_random_matrix(m);
+    let mut c = generate_zeroed_matrix(m);
+
+    let _ = gemm(&a, m, m, &b, m, m, &mut c);
+
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -110,10 +120,6 @@ mod tests {
 
     #[bench]
     fn bench_matmul(bench: &mut Bencher) {
-        let m = 64;
-        let a = generate_random_matrix(m);
-        let b = generate_random_matrix(m);
-        let mut c = generate_zeroed_matrix(m);
-        bench.iter(|| gemm(&a, m, m, &b, m, m, &mut c));
+        bench.iter(|| run_matrixmult());
     }
 }

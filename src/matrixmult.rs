@@ -25,6 +25,8 @@ pub fn gemm(mat_a: &[Complex32], a_rows: usize, a_cols: usize, mat_b: &[Complex3
         return Err("Matrix dimension not compatible!");
     }
 
+    println!("{}, {}", mat_a[0], mat_a[20]);
+
     for i in 0..a_rows {
         for j in 0..b_cols {
             for k in 0..a_cols{
