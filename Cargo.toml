@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies.num-complex]
 version = "0.2"
-default-features = false
 
 [dependencies.rand]
 version = "0.6.5"

@@ -1,33 +1,35 @@
+#![feature(test)]
+
 extern crate num_complex;
 extern crate rand;
+extern crate test;
 
 use num_complex::Complex32;
 use rand::prelude::*;
 use std::time::{Duration, SystemTime};
-use std::thread::sleep;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::f32;
 
 mod matrixmult;
 use matrixmult::gemm;
 
-static MULT_DONE: AtomicUsize = AtomicUsize::new(0);
+static MATRIX_SIZE: usize = 64;
 
 fn main() {
-    // add you code here
+    // add your code here
 }
 
-fn find_average_latency() -> u64 {
-    let num_iter: u64 = 1000;
-    let start = SystemTime::now();
-    for _ in 0..num_iter {
-        run_matrixmult();
-    }
-    let duration = start.elapsed();
+// fn find_average_latency() -> u64 {
+//     let num_iter: u64 = 1000;
+//     let start = SystemTime::now();
+//     for _ in 0..num_iter {
+//         run_matrixmult();
+//     }
+//     let duration = start.elapsed();
     
-    // Return latency
-    // duration / num_iter
-    duration.as_secs() / num_iter
-}
+//     // Return latency
+//     // duration / num_iter
+//     duration.as_secs() / num_iter
+// }
     
 fn print_matrix(mat: &Vec<Complex32>, rows: usize, cols: usize) {
     for i in 0..rows {
@@ -62,15 +64,56 @@ fn generate_zeroed_matrix(size: usize) -> Vec<Complex32> {
     a
 }
 
-fn run_matrixmult() {
-    //size of the matrix
-    let m = 64;
-    
-    let a = generate_random_matrix(m);
-    let b = generate_random_matrix(m);
-    let mut c = generate_zeroed_matrix(m);
+/// checks that 2 mxn complex matrices are equal by taking the square of the euclidean distance between the elements
+fn check_matrix_equality(a: &Vec<Complex32>, b: &Vec<Complex32>, m: usize, n:usize) -> bool {
+    let mut equal = true;
+    let eps = 0.0001;
 
-    let _ = gemm(&a, m, m, &b, m, m, &mut c);
+    for i in 0..m {
+        for j in 0..n {
+            if (a[i*n + j].re - b[i*n + j].re).powf(2.0) + (a[i*n + j].im - b[i*n + j].im).powf(2.0) > eps {
+                equal = false;
+            }
+        }
+    }
 
-//     MULT_DONE.fetch_add(1, Ordering::Relaxed);
+    equal
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::matrixmult::*;
+    use test::Bencher;
+
+    #[test]
+    fn it_works() {
+        let m = MATRIX_SIZE;
+
+        //generate input matrices
+        let a = generate_random_matrix(m);
+        let b = generate_random_matrix(m);
+
+        // find result with unoptimized version
+        let mut c_unopt = generate_zeroed_matrix(m);
+        let _ = gemm_unopt(&a, m, m, &b, m , m, &mut c_unopt);
+
+        // find result with optimized version
+        let mut c = generate_zeroed_matrix(m);
+        let _ = gemm(&a, m, m, &b, m , m, &mut c);
+
+        // check that results are equal
+        let result = check_matrix_equality(&c_unopt, &c, m, m);
+
+        assert_eq!(result, true);
+    }
+
+    #[bench]
+    fn bench_matmul(bench: &mut Bencher) {
+        let m = 64;
+        let a = generate_random_matrix(m);
+        let b = generate_random_matrix(m);
+        let mut c = generate_zeroed_matrix(m);
+        bench.iter(|| gemm(&a, m, m, &b, m, m, &mut c));
+    }
 }
